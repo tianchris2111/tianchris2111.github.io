@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Single Note</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Jacques+Francois+Shadow&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      html {
+        background-image: url("kork.jpg");
+        font-family: "Jacques Francois Shadow", cursive;
+      }
+
+      #überschrift {
+        font-size: 60px;
+        padding: 10px;
+        color: blue;
+        margin: 0;
+      }
+
+      p {
+        font-size: 30px;
+        color: blue;
+        margin: 0;
+      }
+      #notiz {
+        font-size: 40px;
+        height: 50vh;
+        margin-left: 10px;
+        width: 60%;
+        border: 3px solid red;
+        background-color: rgb(236, 236, 125);
+        font-family: "Jacques Francois Shadow", cursive;
+      }
+
+      #textausgabe {
+        font-size: 50px;
+        padding: 10px;
+        margin-top: 10px;
+      }
+
+      #header2 {
+        padding-left: 10px;
+      }
+
+      #mininput {
+        padding: 10px;
+      }
+
+      #sekinput {
+        padding: 10px;
+      }
+
+      #startButton {
+        width: 170px; /* Breite des Buttons */
+        height: 40px; /* Höhe des Buttons */
+        margin-top: 20px;
+        margin-left: 10px;
+        border: 4px solid rgb(255, 255, 255); /* Rahmen */
+        border-radius: 10px; /* Abgerundete Ecken */
+        background: #eee; /* Hintergundfarbe für ältere Browser */
+        background-image: linear-gradient(white, blue); /* Farbverlauf */
+        display: block; /* Darstellung als Block-Element */
+        text-align: center; /* Horizontale Text-Ausrichtung */
+        text-decoration: none; /* Links nicht unterstrichen */
+        font-family: "Jacques Francois Shadow", cursive;
+        font-size: 20px;
+        color: white; /* Textfarbe */
+      }
+
+      #Erklärung {
+        color: red;
+        position: fixed;
+        bottom: 45px;
+        right: 10px;
+      }
+
+      #start {
+        position: fixed;
+        bottom: 10px;
+        right: 10px;
+        width: 120px; /* Breite des Buttons */
+        height: 30px; /* Höhe des Buttons */
+        border: 3px solid rgb(255, 255, 255); /* Rahmen */
+        border-radius: 10px; /* Abgerundete Ecken */
+        background: #eee; /* Hintergundfarbe für ältere Browser */
+        background-image: linear-gradient(white, red); /* Farbverlauf */
+        display: block; /* Darstellung als Block-Element */
+        text-align: center; /* Horizontale Text-Ausrichtung */
+        text-decoration: none; /* Links nicht unterstrichen */
+        font-family: "Jacques Francois Shadow", cursive;
+        font-size: 14px;
+        color: white; /* Textfarbe */
+      }
+
+      #water {
+        position: fixed;
+        width: 100%;
+        height: 0%;
+        left: 0;
+        bottom: 0;
+        pointer-events: none;
+        background: rgba(0, 0, 200, 0.4);
+        left: 0;
+        transition: height 1s linear;
+      }
+
+      #dialog {
+        position: fixed;
+        display: none;
+        width: 60%;
+        margin-left: 10px;
+        z-index: 3;
+        background: rgb(236, 236, 125);
+        border: 3px solid blue;
+      }
+
+      #infotext {
+        font-size: 20px;
+        padding: 10px;
+        color: black;
+      }
+
+      #schließen {
+        margin-left: 10px;
+        margin-bottom: 10px;
+        width: 120px; /* Breite des Buttons */
+        height: 30px; /* Höhe des Buttons */
+        border: 3px solid rgb(255, 255, 255); /* Rahmen */
+        border-radius: 10px; /* Abgerundete Ecken */
+        background: #eee; /* Hintergundfarbe für ältere Browser */
+        background-image: linear-gradient(white, blue); /* Farbverlauf */
+        display: block; /* Darstellung als Block-Element */
+        text-align: center; /* Horizontale Text-Ausrichtung */
+        text-decoration: none; /* Links nicht unterstrichen */
+        font-family: "Jacques Francois Shadow", cursive;
+        font-size: 14px;
+        color: white; /* Textfarbe */
+      }
+
+      .dialogShow {
+        display: block !important;
+      }
+    </style>
+  </head>
+  <body>
+    <p id="Erklärung">Need help?</p>
+    <button id="start">Get info!</button>
+
+    <div id="dialog">
+      <p id="infotext">
+        This Website let's you create only one single note. You have to enter
+        your note and a timer, to get focused on just one task at a time.
+      </p>
+      <button id="schließen">Close</button>
+    </div>
+    <p id="überschrift">Enter your unique note:</p>
+
+    <label for="notiz" id="labelnotiz">
+      <textarea name="eingabefeld" id="notiz" cols="30" rows="10"></textarea>
+    </label>
+    <div id="erstellung"></div>
+    <label>
+      <output id="textausgabe"></output>
+    </label>
+
+    <p id="header2">Enter your timer:</p>
+
+    <p id="mininput">Minutes: <input type="number" id="minutenInput" /></p>
+
+    <p id="sekinput">Seconds: <input type="number" id="sekundenInput" /></p>
+
+    <p id="timer_minuten"></p>
+
+    <button id="startButton" onclick="startTime(); inputter();">
+      Create Note
+    </button>
+
+    <div id="water"></div>
+  </body>
+</html>
+<script>
+  var erstellung = document.getElementById("erstellung");
+  var output = document.querySelector("output");
+  var notiz = document.getElementById("notiz");
+
+  var hasLeaved = false;
+  var hasInputted = false;
+
+  /*
+  check if input has ever gotten any value
+  notiz ??????? eventlistener?? Keyboard key pressed while focussed ????
+  */
+
+  erstellung.addEventListener("click", inputter);
+  document.onkeydown = function (e) {
+    e = e || window.event;
+    switch (e.which || e.keyCode) {
+      case 13:
+        inputter();
+        startTime();
+    }
+  };
+
+  function inputter() {
+    if (!hasInputted) {
+      notiz.classList.add("rotation");
+      var note = document.getElementById("notiz").value;
+      output.textContent = note;
+      notiz.value = "";
+      hasInputted = true;
+    } else {
+      alert("Einmalige Eingabe. Sorry.");
+    }
+  }
+
+  function playSound(url) {}
+
+  var myVar;
+
+  var timeVal;
+  var countDownSeconds;
+
+  var water = document.getElementById("water");
+
+  var minutenInput = document.getElementById("minutenInput");
+  var sekundenInput = document.getElementById("sekundenInput");
+
+  function startTime() {
+    document.getElementById("startButton").disabled = true;
+    clearInterval(myVar);
+    myVar = setInterval(start, 1000);
+    document.getElementById("timer_minuten").innerHTML =
+      +minutenInput.value * 60 + +sekundenInput.value;
+
+    timeVal = +minutenInput.value * 60 + +sekundenInput.value;
+    countDownSeconds = +minutenInput.value * 60 + +sekundenInput.value;
+  }
+
+  function start() {
+    countDownSeconds--;
+    water.style.height = 100 - (countDownSeconds / timeVal) * 100 + "%";
+    document.getElementById("timer_minuten").innerHTML = countDownSeconds;
+    if (countDownSeconds <= -1) {
+      clearInterval(myVar);
+      document.getElementById("timer_minuten").innerHTML = "0";
+    }
+  }
+
+  var startbutton = document.getElementById("start"),
+    dialog = document.getElementById("dialog"),
+    Schließen = document.getElementById("schließen");
+  startbutton.addEventListener("click", zeigeFenster);
+  Schließen.addEventListener("click", schließeFenster);
+
+  var dialog = document.getElementById("dialog");
+  function zeigeFenster() {
+    dialog.classList.toggle("dialogShow");
+  }
+
+  function schließeFenster() {
+    dialog.classList.toggle("dialogShow");
+  }
+
+  /*
+  document.addEventListener("mouseleave", function () {
+    if (output.innerHTML != "" && !hasLeaved) {
+      const audio = new Audio("sound.mp3");
+      audio.play();
+      setTimeout(() => {
+        alert("Wirklich fertig?");
+        hasLeaved = true;
+      }, 1000);
+    }
+  });
+  */
+</script>
